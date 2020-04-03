@@ -8,37 +8,55 @@ namespace SecretNamesBackend.Models
     public class Room
     {
         private ICollection<Player> _players;
-        private Player _host;
 
         public string Name { get; set; }        
-        public ICollection<Player> Players { get => this._players.ToList().AsReadOnly();  }       
-        public Player Host { get; }
+        public ICollection<Player> Players { get => _players.ToList().AsReadOnly();  }
+        public Player Host { get; private set; }
+        public Team TeamA { get; set; }
+        public Team TeamB { get; set; }
 
         public Room(string name) {
             this.Name = name;
             this._players = new List<Player>();
+            this.TeamA = new Team("Team A");
+            this.TeamB = new Team("Team B");
         }
 
         public void AddPlayer(Player player)
         {
             if (this._players.Count == 0)
             {
-                this._host = player;
+                Host = player;
             }
 
-            if (!this._players.Contains(player))
+            if (!_players.Contains(player))
             {
-                this._players.Add(player);
+                _players.Add(player);
             }
 
             player.Room = this;
+            AddPlayerToTeamWithLessMembers(player);
         }
 
         public void RemovePlayer(Player player)
         {
-            this._players.Remove(player);
+            _players.Remove(player);
+            GetTeamOf(player).Players.Remove(player);
         }
 
+        private void AddPlayerToTeamWithLessMembers(Player player)
+        {
+            Team teamWithLessMembers = TeamA.Players.Count <= TeamB.Players.Count ? TeamA : TeamB;
+            teamWithLessMembers.Players.Add(player);
+        }
 
+        public Team GetTeamOf(Player player)
+        {
+            if (TeamA.Players.Contains(player))
+            {
+                return TeamA;
+            }
+            return TeamB;
+        }
     }
 }

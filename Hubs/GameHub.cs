@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SecretNamesBackend.Hubs.CommunicationObjects;
 using SecretNamesBackend.Models;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace SecretNamesBackend.Hubs
         static readonly Dictionary<string, Player> Players = new Dictionary<string, Player>();
         static readonly Dictionary<string, string> ConnectionToUser = new Dictionary<string, string>();
 
-        public async Task RegisterNewUser(string userName, string room)
+        public async Task RegisterNewUser(string userName, string roomName)
         {               
             // Make Sure that the UserName is Unique 
             var validatedUserName = userName;
@@ -25,13 +26,13 @@ namespace SecretNamesBackend.Hubs
 
             // Get or create the room
             Room gameRoom;
-            if (!Rooms.ContainsKey(room))
+            if (!Rooms.ContainsKey(roomName))
             {
-                gameRoom = new Room(room);
-                Rooms.Add(room, gameRoom);
+                gameRoom = new Room(roomName);
+                Rooms.Add(roomName, gameRoom);
             } else
             {
-                gameRoom = Rooms[room];
+                gameRoom = Rooms[roomName];
             }
 
             // Update model
@@ -43,20 +44,13 @@ namespace SecretNamesBackend.Hubs
             ConnectionToUser.Add(Context.ConnectionId, validatedUserName);
 
             // Update global groups
-            await Groups.AddToGroupAsync(Context.ConnectionId, room);
-
-            // Notify others clients
-            await Clients.OthersInGroup(room).SendAsync(WebSocketActions.USER_JOINED, validatedUserName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
 
             // Notify itself
-            if (gameRoom.Host == player)
-            {
-                await Clients.Caller.SendAsync(WebSocketActions.CONNECTION_ACCEPTED_HOST, validatedUserName);
-            }
-            else
-            {
-                await Clients.Caller.SendAsync(WebSocketActions.CONNECTION_ACCEPTED_GUEST, validatedUserName);
-            }
+            await Clients.Caller.SendAsync(WebSocketActions.CONNECTION_ACCEPTED, validatedUserName);
+
+            // Update game
+            await Clients.Group(roomName).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(gameRoom));
         }
 
         public async override Task OnDisconnectedAsync(Exception exception)
@@ -84,7 +78,7 @@ namespace SecretNamesBackend.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, player.Room.Name);
 
             // Notify others clients
-            await Clients.OthersInGroup(player.Room.Name).SendAsync(WebSocketActions.USER_LEFT, player.UserName);
+            await Clients.OthersInGroup(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
         }
 
         public async Task SendChatMessage(string message)
@@ -99,8 +93,8 @@ namespace SecretNamesBackend.Hubs
     {
         public static readonly string USER_JOINED = "userJoined";
         public static readonly string USER_LEFT = "userLeft";
+        public static readonly string UPDATE_GAME = "updateGame";
         public static readonly string CHAT_MESSAGE_SENT = "chatMessageSent";
-        public static readonly string CONNECTION_ACCEPTED_GUEST = "connectionAcceptedGuest";
-        public static readonly string CONNECTION_ACCEPTED_HOST = "connectionAcceptedHost";
+        public static readonly string CONNECTION_ACCEPTED = "connectionAccepted";
     }
 }
