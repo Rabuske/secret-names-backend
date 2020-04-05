@@ -47,7 +47,7 @@ namespace SecretNamesBackend
             {
                 var URL = System.Environment.GetEnvironmentVariable("FRONTEND_APPLICATION_URL");
                 if(URL == null || URL.Length <= 0){
-                    URL = "https://condinomes.azurewebsites.net";
+                    URL = "https://codinomes.azurewebsites.net";
                 }
                 builder.WithOrigins(URL)
                     .AllowAnyHeader()
