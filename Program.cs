@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SecretNamesBackend.Models;
+using SecretNamesBackend.Utils;
 
 namespace SecretNamesBackend
 {

@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 
 namespace SecretNamesBackend.Hubs.CommunicationObjects.DTO
 {
-    public class Game
+    public class Room
     {
-        public Player Host { get; set; }
         public string Name { get; set; }
+        public Player Host { get; set; }
         public Team TeamA { get; set; }
         public Team TeamB { get; set; }
+        public Board Board { get; set; }
+        public Round Round { get; set; }
+        public bool HasGameStarted { get; set; }
     }
 }

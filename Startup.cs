@@ -45,7 +45,11 @@ namespace SecretNamesBackend
             // Make sure the CORS middleware is ahead of SignalR.
             app.UseCors(builder =>
             {
-                builder.WithOrigins("http://localhost:3000")
+                var URL = System.Environment.GetEnvironmentVariable("FRONTEND_APPLICATION_URL");
+                if(URL == null || URL.Length <= 0){
+                    URL = "https://condinomes.azurewebsites.net";
+                }
+                builder.WithOrigins(URL)
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST")
                     .AllowCredentials();

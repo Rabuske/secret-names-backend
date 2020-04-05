@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace SecretNamesBackend.Hubs.CommunicationObjects.DTO
 {
-    public class Team
+    public class Vote
     {
-        public List<Player> Players { get; set; }
-        public string Name { get; set; }
-        public string Id { get; set; }
+        public string UserName { get; set; }
+        public string Word { get; set; }
     }
 }

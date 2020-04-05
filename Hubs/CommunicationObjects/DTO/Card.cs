@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace SecretNamesBackend.Hubs.CommunicationObjects.DTO
 {
-    public class Team
+    public class Card
     {
-        public List<Player> Players { get; set; }
-        public string Name { get; set; }
-        public string Id { get; set; }
+        public string Word { get; set; }
+        public string Agent { get; set; }
+        public bool HasBeenRevealed { get; set; }
     }
 }

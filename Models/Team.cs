@@ -7,13 +7,15 @@ namespace SecretNamesBackend.Models
 {
     public class Team
     {
-        public ICollection<Player> Players { get; set; }
-        public string TeamName { get; set; }
+        public List<Player> Players { get; set; }
+        public string Name { get; set; }
+        public string Id { get; set; }
 
-        public Team(string teamName)
+        public Team(string teamName, string teamID)
         {
             Players = new List<Player>();
-            TeamName = teamName;
+            Name = teamName;
+            Id = teamID;
         }
     }
 }
