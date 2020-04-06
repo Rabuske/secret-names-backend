@@ -133,9 +133,9 @@ namespace SecretNamesBackend.Models
             HasGameStarted = false;
         }
 
-        public void PassTurn()
+        public void PassTurn(Player player)
         {
-            Board.PassTurn();
+            Board.PassTurn(player);
         }
     }
 }

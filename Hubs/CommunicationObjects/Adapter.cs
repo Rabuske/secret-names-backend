@@ -37,7 +37,8 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects
                     UserName = vote.Key.UserName,
                     Word = vote.Value.Word
                 }).ToList(),
-                IsClueSubmitted = currentRound.IsClueSubmitted
+                IsClueSubmitted = currentRound.IsClueSubmitted,
+                NumberOfWordsRelatedToGuess = currentRound.NumberOfWordsRelatedToGuess
             };
         }
 

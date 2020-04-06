@@ -9,5 +9,6 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects.DTO
     {
         public string UserName { get; set; }
         public string Word { get; set; }
+        public bool Pass { get; set; }
     }
 }

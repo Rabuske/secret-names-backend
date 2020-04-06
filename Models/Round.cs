@@ -29,7 +29,7 @@ namespace SecretNamesBackend.Models
             {
                 return;
             }
-            RemainingGuesses = numberOfWordsRelatedToClue;
+            RemainingGuesses = numberOfWordsRelatedToClue + 1;
         }
 
         public void AddVote(Player player, Card card)

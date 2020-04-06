@@ -94,26 +94,24 @@ namespace SecretNamesBackend.Models
                 return;
             }
 
-            // Initiate New Round
-            Team nextTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA;
-            CurrentRound = new Round(nextTeam);
+            PassTurn(player);
 
             // Check if game has finished
             // Assassing has been revealed: currentTeam loses
-            if(Cards.Exists(card => card.Agent.Equals(Agent.ASSASSIN) && card.HasBeenRevealed))
+            if (Cards.Exists(card => card.Agent.Equals(Agent.ASSASSIN) && card.HasBeenRevealed))
             {
                 HasGameFinished = true;
-                WinningTeam = nextTeam;
+                WinningTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA; ;
             }
 
             // Check if there are some team whose all the cards have been revealed
-            if(!Cards.Exists(card => card.Agent.Equals(Agent.TEAM_A) && !card.HasBeenRevealed))
+            if (Cards.Where(card => card.Agent.Equals(Agent.TEAM_A)).All(card => card.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamA;
             }
 
-            if (!Cards.Exists(card => card.Agent.Equals(Agent.TEAM_B) && !card.HasBeenRevealed))
+            if (Cards.Where(card => card.Agent.Equals(Agent.TEAM_B)).All(card => card.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamB;
@@ -126,9 +124,12 @@ namespace SecretNamesBackend.Models
             CurrentRound.Votes.Remove(player);
         }
 
-        internal void PassTurn()
+        internal void PassTurn(Player player)
         {
             CurrentRound.FinishTurn();
+            // Initiate New Round
+            Team nextTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA;
+            CurrentRound = new Round(nextTeam);
         }
     }
 }

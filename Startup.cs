@@ -46,9 +46,6 @@ namespace SecretNamesBackend
             app.UseCors(builder =>
             {
                 var URL = System.Environment.GetEnvironmentVariable("FRONTEND_APPLICATION_URL");
-                if(URL == null || URL.Length <= 0){
-                    URL = "https://codinomes.azurewebsites.net";
-                }
                 builder.WithOrigins(URL)
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST")
@@ -59,7 +56,7 @@ namespace SecretNamesBackend
 
             app.UseWebSockets(new WebSocketOptions
             {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
+                KeepAliveInterval = TimeSpan.FromSeconds(15),                
             });
 
             app.UseEndpoints(endpoints =>

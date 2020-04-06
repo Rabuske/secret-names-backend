@@ -36,7 +36,7 @@ namespace SecretNamesBackend.Hubs
             }
 
             // Update model
-            Player player = new Player { UserName = validatedUserName, Room = gameRoom };
+            Player player = new Player { UserName = validatedUserName };
 
             try
             {
@@ -71,24 +71,29 @@ namespace SecretNamesBackend.Hubs
 
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
 
-            // Check if game must be finshed due to lack of players
-            bool gameHasToBeFinished = player.Room.HasGameStarted && player.Room.GetTeamOf(player).Players.Count == 2;
+            PlayerNameToPlayerMapping.Remove(player.UserName);
+            ConnectionToPlayerMapping.Remove(Context.ConnectionId);
 
+            // Check if game must be finshed due to lack of players
+            if (player.Room == null)
+            {
+                return;
+            }
+
+            var gameHasToBeFinished = player.Room.HasGameStarted && player.Room.GetTeamOf(player).Players.Count == 2;
+                
             // Update model
             player.Room.RemovePlayer(player);
-            
+
             // Update Local Mappings
             if (player.Room.Players.Count == 0)
             {
                 RoomNameToRoomMapping.Remove(player.Room.Name);
             }            
 
-            PlayerNameToPlayerMapping.Remove(player.UserName);
-            ConnectionToPlayerMapping.Remove(Context.ConnectionId);
-
             // Update Global Groups
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, player.Room.Name);
-
+            
             // Finish Game
             if (gameHasToBeFinished)
             {
@@ -181,10 +186,10 @@ namespace SecretNamesBackend.Hubs
 
         private async Task SendGameFinishedMessageAsync(string roomName, Team winningTeam)
         {
-            await Clients.Group(roomName).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"Game has end. {winningTeam.Name} has won!", "Secret Names");
+            await Clients.Group(roomName).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"Game has ended. {winningTeam.Name} has won!", "Secret Names");
         }
 
-        public async Task RemoveVote()
+        public async Task RemoveVoteForWord()
         {
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
             player.Room.RemoveVote(player);
@@ -198,7 +203,12 @@ namespace SecretNamesBackend.Hubs
         public async Task PassTurn()
         {
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
-            player.Room.PassTurn();
+            player.Room.PassTurn(player);
+
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} voted to pass the turn", "Secret Names");
+
+            // Notify clients
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
         }
     }
 
