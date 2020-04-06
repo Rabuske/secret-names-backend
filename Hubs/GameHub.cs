@@ -151,6 +151,7 @@ namespace SecretNamesBackend.Hubs
 
         public async Task ReceiveClue(string clue, string numberOfWords)
         {
+            var clueInUpper = clue.ToUpper();
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
 
             // Validate that the player is the known all
@@ -159,9 +160,9 @@ namespace SecretNamesBackend.Hubs
                 await Clients.Caller.SendAsync(WebSocketActions.DISPLAY_MESSAGE, MessageTypes.ERROR, "Game has not started yet!");
             }
 
-            player.Room.ReceiveClue(clue, int.Parse(numberOfWords));
+            player.Room.ReceiveClue(clueInUpper, int.Parse(numberOfWords));
 
-            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} gave the clue {clue}, related to {numberOfWords} words", "Secret Names");
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} gave the clue {clueInUpper}, related to {numberOfWords} words", "Secret Names");
 
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
