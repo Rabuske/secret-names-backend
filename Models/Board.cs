@@ -14,6 +14,7 @@ namespace SecretNamesBackend.Models
         public Round CurrentRound { get; set; }
         public bool HasGameFinished { get; set; }
         public Team WinningTeam { get; set; }
+        public string WinningCondition { get; set; }
 
         public Board()
         {
@@ -101,7 +102,8 @@ namespace SecretNamesBackend.Models
             if (Cards.Exists(card => card.Agent.Equals(Agent.ASSASSIN) && card.HasBeenRevealed))
             {
                 HasGameFinished = true;
-                WinningTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA; ;
+                WinningTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA;
+                WinningCondition = $"{player.UserName} has selected the assassin. Team {WinningTeam.Name} wins.";
             }
 
             // Check if there are some team whose all the cards have been revealed
@@ -109,12 +111,14 @@ namespace SecretNamesBackend.Models
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamA;
+                WinningCondition = $"{player.UserName} has selected the last card. Team {WinningTeam.Name} wins.";
             }
 
             if (Cards.Where(card => card.Agent.Equals(Agent.TEAM_B)).All(card => card.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamB;
+                WinningCondition = $"{player.UserName} has selected the last card. Team {WinningTeam.Name} wins.";
             }
 
         }

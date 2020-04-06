@@ -176,17 +176,12 @@ namespace SecretNamesBackend.Hubs
             // Check if game has finished for this board
             if (player.Room.Board.HasGameFinished)
             {
-                await SendGameFinishedMessageAsync(player.Room.Name, player.Room.Board.WinningTeam);
+                await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, player.Room.Board.WinningCondition, "Secret Names");
                 player.Room.ResetGame();
             }
 
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
-        }
-
-        private async Task SendGameFinishedMessageAsync(string roomName, Team winningTeam)
-        {
-            await Clients.Group(roomName).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"Game has ended. {winningTeam.Name} has won!", "Secret Names");
         }
 
         public async Task RemoveVoteForWord()
@@ -205,7 +200,7 @@ namespace SecretNamesBackend.Hubs
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
             player.Room.PassTurn(player);
 
-            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} voted to pass the turn", "Secret Names");
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} gave up and passed their team's turn", "Secret Names");
 
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
