@@ -13,6 +13,7 @@ namespace SecretNamesBackend.Models
         public IDictionary<Player, Card> Votes { get; set; }
         public bool HasFinished { get; internal set; }
         public bool IsClueSubmitted { get => Clue != null && Clue.Length > 0;}
+        public int NumberOfWordsRelatedToGuess { get; set; }
 
         public Round(Team team)
         {
@@ -22,12 +23,13 @@ namespace SecretNamesBackend.Models
 
         public void CalculateRemainingGuesses(int numberOfWordsRelatedToClue)
         {
+            NumberOfWordsRelatedToGuess = numberOfWordsRelatedToClue;
             RemainingGuesses = 25;
             if (numberOfWordsRelatedToClue > 24 || numberOfWordsRelatedToClue <= 0)
             {
                 return;
             }
-            RemainingGuesses = numberOfWordsRelatedToClue + 1;
+            RemainingGuesses = numberOfWordsRelatedToClue;
         }
 
         public void AddVote(Player player, Card card)
@@ -68,6 +70,11 @@ namespace SecretNamesBackend.Models
             {
                 HasFinished = true;
             }
+        }
+
+        public void FinishTurn()
+        {
+            HasFinished = true;
         }
     }
 }

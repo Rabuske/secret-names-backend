@@ -132,5 +132,10 @@ namespace SecretNamesBackend.Models
             Board = new Board(Board.KnowAllFromTeamA, Board.KnowAllFromTeamB);
             HasGameStarted = false;
         }
+
+        public void PassTurn()
+        {
+            Board.PassTurn();
+        }
     }
 }

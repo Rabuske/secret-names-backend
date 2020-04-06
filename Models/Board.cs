@@ -125,5 +125,10 @@ namespace SecretNamesBackend.Models
         {
             CurrentRound.Votes.Remove(player);
         }
+
+        internal void PassTurn()
+        {
+            CurrentRound.FinishTurn();
+        }
     }
 }

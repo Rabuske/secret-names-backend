@@ -12,6 +12,7 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects.DTO
         public string Clue { get; set; }
         public int RemainingGuesses { get; set; }
         public bool IsClueSubmitted { get; set; }
+        public int NumberOfWordsRelatedToGuess { get; set; }
 
         public Round()
         {

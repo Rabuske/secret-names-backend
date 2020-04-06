@@ -156,6 +156,8 @@ namespace SecretNamesBackend.Hubs
 
             player.Room.ReceiveClue(clue, int.Parse(numberOfWords));
 
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} gave the clue {clue}, related to {numberOfWords} words", "Secret Names");
+
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
         }
@@ -164,7 +166,7 @@ namespace SecretNamesBackend.Hubs
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
             player.Room.CastVote(word, player);
 
-            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} voted in word {word}", "Secret Names");
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.CHAT_MESSAGE_SENT, $"{player.UserName} voted for word {word}", "Secret Names");
 
             // Check if game has finished for this board
             if (player.Room.Board.HasGameFinished)
@@ -191,6 +193,12 @@ namespace SecretNamesBackend.Hubs
 
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
+        }
+
+        public async Task PassTurn()
+        {
+            Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
+            player.Room.PassTurn();
         }
     }
 
