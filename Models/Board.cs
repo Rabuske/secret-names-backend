@@ -50,15 +50,23 @@ namespace SecretNamesBackend.Models
             WordProvider wordProvider = WordProvider.GetInstance();
 
             Cards = new List<Card>();
+
             for (int i = 0; i < 25; i++)
             {
                 var randomAgentIndex = random.Next(0, poolOfAgents.Count);
-                Cards.Add(new Card
+
+                Card card;
+                do
                 {
-                    Word = wordProvider.GetRandomWord(),
-                    HasBeenRevealed = false,
-                    Agent = poolOfAgents[randomAgentIndex]
-                });
+                    card = new Card
+                    {
+                        Word = wordProvider.GetRandomWord(),
+                        HasBeenRevealed = false,
+                        Agent = poolOfAgents[randomAgentIndex]
+                    };
+                } while (Cards.Any(addedCard => addedCard.Word.Equals(card.Word)));
+
+                Cards.Add(card);
 
                 poolOfAgents.RemoveAt(randomAgentIndex);
             }
@@ -87,40 +95,32 @@ namespace SecretNamesBackend.Models
 
         public void CastVote(Player player, string word)
         {
-            var card = Cards.Find(card => card.Word.Equals(word));
+            var card = Cards.Find(c => c.Word.Equals(word));
             CurrentRound.AddVote(player, card);
-
-            if (!CurrentRound.HasFinished)
-            {
-                return;
-            }
-
-            PassTurn(player);
-
+           
             // Check if game has finished
             // Assassing has been revealed: currentTeam loses
-            if (Cards.Exists(card => card.Agent.Equals(Agent.ASSASSIN) && card.HasBeenRevealed))
+            if (Cards.Exists(cardInBoard => cardInBoard.Agent.Equals(Agent.ASSASSIN) && cardInBoard.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = CurrentRound.Team.Equals(player.Room.TeamA) ? player.Room.TeamB : player.Room.TeamA;
-                WinningCondition = $"{player.UserName} has selected the assassin. Team {WinningTeam.Name} wins.";
+                WinningCondition = $"{player.UserName} has selected the assassin. {WinningTeam.Name} wins.";
             }
 
             // Check if there are some team whose all the cards have been revealed
-            if (Cards.Where(card => card.Agent.Equals(Agent.TEAM_A)).All(card => card.HasBeenRevealed))
+            if (Cards.Where(cardInBoard => cardInBoard.Agent.Equals(Agent.TEAM_A)).All(cardOfTeam => cardOfTeam.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamA;
-                WinningCondition = $"{player.UserName} has selected the last card. Team {WinningTeam.Name} wins.";
+                WinningCondition = $"{player.UserName} has selected the last card. {WinningTeam.Name} wins.";
             }
 
-            if (Cards.Where(card => card.Agent.Equals(Agent.TEAM_B)).All(card => card.HasBeenRevealed))
+            if (Cards.Where(cardInBoard => cardInBoard.Agent.Equals(Agent.TEAM_B)).All(cardOfTeam => cardOfTeam.HasBeenRevealed))
             {
                 HasGameFinished = true;
                 WinningTeam = player.Room.TeamB;
-                WinningCondition = $"{player.UserName} has selected the last card. Team {WinningTeam.Name} wins.";
+                WinningCondition = $"{player.UserName} has selected the last card. {WinningTeam.Name} wins.";
             }
-
         }
 
         internal void RemoveVote(Player player)
