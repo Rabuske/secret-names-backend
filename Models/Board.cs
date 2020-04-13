@@ -121,6 +121,13 @@ namespace SecretNamesBackend.Models
                 WinningTeam = player.Room.TeamB;
                 WinningCondition = $"{player.UserName} has selected the last card. {WinningTeam.Name} wins.";
             }
+
+            // Initiate new round if finished
+            if(CurrentRound.HasFinished)
+            {
+                PassTurn(player);
+            }
+
         }
 
         internal void RemoveVote(Player player)
