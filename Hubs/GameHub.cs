@@ -3,7 +3,6 @@ using SecretNamesBackend.Hubs.CommunicationObjects;
 using SecretNamesBackend.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SecretNamesBackend.Hubs
@@ -16,6 +15,12 @@ namespace SecretNamesBackend.Hubs
 
         public async Task RegisterNewUser(string userName, string roomName)
         {
+            // Tries to reconnect 
+            if (ConnectionToPlayerMapping.ContainsKey(Context.ConnectionId))
+            {
+
+            }
+
             // Make Sure that the UserName is Unique 
             var validatedUserName = userName;
 
@@ -30,7 +35,8 @@ namespace SecretNamesBackend.Hubs
             {
                 gameRoom = new Room(roomName);
                 RoomNameToRoomMapping.Add(roomName, gameRoom);
-            } else
+            }
+            else
             {
                 gameRoom = RoomNameToRoomMapping[roomName];
             }
@@ -81,7 +87,7 @@ namespace SecretNamesBackend.Hubs
             }
 
             var gameHasToBeFinished = player.Room.HasGameStarted && player.Room.GetTeamOf(player).Players.Count == 2;
-                
+
             // Update model
             player.Room.RemovePlayer(player);
 
@@ -89,11 +95,11 @@ namespace SecretNamesBackend.Hubs
             if (player.Room.Players.Count == 0)
             {
                 RoomNameToRoomMapping.Remove(player.Room.Name);
-            }            
+            }
 
             // Update Global Groups
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, player.Room.Name);
-            
+
             // Finish Game
             if (gameHasToBeFinished)
             {
@@ -168,7 +174,8 @@ namespace SecretNamesBackend.Hubs
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
         }
 
-        public async Task VoteForWord(string word) { 
+        public async Task VoteForWord(string word)
+        {
             Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
             player.Room.CastVote(word, player);
 

@@ -53,10 +53,7 @@ namespace SecretNamesBackend
 
             //app.UseAuthorization();
 
-            app.UseWebSockets(new WebSocketOptions
-            {
-                KeepAliveInterval = TimeSpan.FromSeconds(15),                
-            });
+            app.UseWebSockets();
 
             app.UseEndpoints(endpoints =>
             {
