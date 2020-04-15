@@ -9,8 +9,6 @@ namespace SecretNamesBackend.Models
     public class Board
     {
         public List<Card> Cards { get; set; }
-        public Player KnowAllFromTeamA { get; set; }
-        public Player KnowAllFromTeamB { get; set; }
         public Round CurrentRound { get; set; }
         public bool HasGameFinished { get; set; }
         public Team WinningTeam { get; set; }
@@ -21,18 +19,8 @@ namespace SecretNamesBackend.Models
             Cards = new List<Card>();
         }
 
-        public Board(Player knowAllFromTeamA, Player knowAllFromTeamB)
-        {
-            KnowAllFromTeamA = knowAllFromTeamA;
-            KnowAllFromTeamB = knowAllFromTeamB;
-            Cards = new List<Card>();
-        }
-
         public void InitializeBoard(Player playerFromTeamA, Player playerFromTeamB)
         {
-            KnowAllFromTeamA = playerFromTeamA;
-            KnowAllFromTeamB = playerFromTeamB;
-
             // Decides which team starts randomly
             Random random = new Random();
             var startingTeam = random.Next(0, 2) == 0 ? playerFromTeamA.Room.TeamA : playerFromTeamB.Room.TeamB;

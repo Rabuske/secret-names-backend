@@ -47,7 +47,7 @@ namespace SecretNamesBackend
             {
                 builder.WithOrigins(Configuration["FRONTEND_APPLICATION_URL"])
                     .AllowAnyHeader()
-                    .WithMethods("GET", "POST")
+                    .AllowAnyMethod()
                     .AllowCredentials();
             });
 

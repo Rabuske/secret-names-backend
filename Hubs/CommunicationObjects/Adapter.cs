@@ -15,7 +15,7 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects
                 Host = ConvertPlayer(room.Host),
                 TeamA = ConvertTeam(room.TeamA),
                 TeamB = ConvertTeam(room.TeamB),
-                Board = ConvertBoard(room.Board),
+                Board = ConvertBoard(room.Board, room.TeamA, room.TeamB),
                 HasGameStarted = room.HasGameStarted,
                 Round = ConvertRound(room.Board.CurrentRound)
             };
@@ -65,8 +65,8 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects
             };
         }
 
-        private static DTO.Board ConvertBoard(Models.Board board)
-        {
+        private static DTO.Board ConvertBoard(Models.Board board, Models.Team teamA, Models.Team teamB)
+        {            
             return new DTO.Board
             {
                 Cards = board.Cards.Select(card => new DTO.Card
@@ -75,8 +75,8 @@ namespace SecretNamesBackend.Hubs.CommunicationObjects
                     Word = card.Word,
                     HasBeenRevealed = card.HasBeenRevealed
                 }).ToList(),
-                KnowAllForTeamA = ConvertPlayer(board.KnowAllFromTeamA),
-                KnowAllForTeamB = ConvertPlayer(board.KnowAllFromTeamB)
+                KnowAllForTeamA = ConvertPlayer(teamA.Coder), // TODO: move to teamDTO
+                KnowAllForTeamB = ConvertPlayer(teamB.Coder)  // TODO: move to teamDTO
             };
         }
     }

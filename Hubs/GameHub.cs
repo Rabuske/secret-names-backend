@@ -104,6 +104,7 @@ namespace SecretNamesBackend.Hubs
             if (gameHasToBeFinished)
             {
                 player.Room.ResetGame();
+                player.Room.ClearBoard();
                 await Clients.OthersInGroup(player.Room.Name).SendAsync(WebSocketActions.DISPLAY_MESSAGE, MessageTypes.WARNING, "Game Finished due to insufficient number of players");
             }
 
@@ -213,6 +214,25 @@ namespace SecretNamesBackend.Hubs
             // Notify clients
             await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
         }
+
+        public async Task ChangeCoderTeamA()
+        {
+            Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
+            player.Room.TeamA.SelectNextCoder();
+
+            // Notify clients
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
+        }
+
+        public async Task ChangeCoderTeamB()
+        {
+            Player player = PlayerNameToPlayerMapping[ConnectionToPlayerMapping[Context.ConnectionId]];
+            player.Room.TeamB.SelectNextCoder();
+
+            // Notify clients
+            await Clients.Group(player.Room.Name).SendAsync(WebSocketActions.UPDATE_GAME, Adapter.Convert(player.Room));
+        }
+
     }
 
     public struct MessageTypes

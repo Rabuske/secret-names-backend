@@ -49,14 +49,14 @@ namespace SecretNamesBackend.Models
         {
             Team playersTeam = GetTeamOf(player);
             Team otherTeam = playersTeam.Equals(TeamA) ? TeamB : TeamA;
-            playersTeam.Players.Remove(player);
-            otherTeam.Players.Add(player);
+            playersTeam.RemovePlayer(player);
+            otherTeam.AddPlayer(player);
         }
 
         public void RemovePlayer(Player player)
         {
             Players.Remove(player);
-            GetTeamOf(player).Players.Remove(player);
+            GetTeamOf(player).RemovePlayer(player);
             if(player.IsHost && Players.Count > 0)
             {
                 Host = Players[0];
@@ -66,7 +66,7 @@ namespace SecretNamesBackend.Models
         private void AddPlayerToTeamWithLessMembers(Player player)
         {
             Team teamWithLessMembers = TeamA.Players.Count <= TeamB.Players.Count ? TeamA : TeamB;
-            teamWithLessMembers.Players.Add(player);
+            teamWithLessMembers.AddPlayer(player);
         }
 
         public Team GetTeamOf(Player player)
@@ -84,13 +84,9 @@ namespace SecretNamesBackend.Models
             {
                 throw new TeamNotCompleteException();
             }
-
-            // Get the players that will be the "Know All"
-            Player knowAllTeamA = GetNextPlayer(TeamA, Board.KnowAllFromTeamA);
-            Player knowAllTeamB = GetNextPlayer(TeamB, Board.KnowAllFromTeamB);
-
+            
             // Create WordMap
-            Board.InitializeBoard(knowAllTeamA, knowAllTeamB);
+            Board.InitializeBoard(TeamA.Coder, TeamB.Coder);
 
             HasGameStarted = true;
         }
@@ -99,22 +95,6 @@ namespace SecretNamesBackend.Models
         {
             Board.CurrentRound.Clue = clue;
             Board.CurrentRound.CalculateRemainingGuesses(numberOfWords);
-        }
-
-        private Player GetNextPlayer(Team team, Player knowAllFromTeam)
-        {
-            if (knowAllFromTeam == null) return team.Players[0];
-
-            // Previous Player has left the tean
-            int indexOfPreviousPlayer = team.Players.FindIndex(player => player.UserName.Equals(knowAllFromTeam.UserName));
-            if (indexOfPreviousPlayer == -1)
-            {
-                return team.Players[0];
-            }
-
-            var indexOfNexPlayer = (indexOfPreviousPlayer + 1) % team.Players.Count;
-
-            return team.Players[indexOfNexPlayer];            
         }
 
         public void CastVote(string word, Player player)
@@ -127,10 +107,16 @@ namespace SecretNamesBackend.Models
             Board.RemoveVote(player);
         }
 
+        internal void ClearBoard()
+        {
+            Board = new Board();
+        }
+
         public void ResetGame()
         {
-            Board = new Board(Board.KnowAllFromTeamA, Board.KnowAllFromTeamB);
             HasGameStarted = false;
+            TeamA.SelectNextCoder();
+            TeamB.SelectNextCoder();
         }
 
         public void PassTurn(Player player)
