@@ -84,8 +84,9 @@ namespace SecretNamesBackend.Models
             {
                 throw new TeamNotCompleteException();
             }
-            
+
             // Create WordMap
+            ClearBoard();
             Board.InitializeBoard(TeamA.Coder, TeamB.Coder);
 
             HasGameStarted = true;
